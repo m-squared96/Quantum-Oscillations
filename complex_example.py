@@ -4,19 +4,19 @@ import matplotlib.pyplot as plt
 from scipy.integrate import ode
 
 def f(t, y, arg1, arg2):
-    return [-arg1*y[0], -arg2*y[1]]
+    return -arg1*y -arg2*y
 
 def jac(t, y, arg1):
     return -arg1*y
 
 #Parameters
-delta = 0.01
+delta = 0.001
 d_delta = 0.0001
-tau = 100
-Omega0 = 0.5
+tau = 1000
+Omega0 = 1.0j
 
 f_arg = (1.0j * delta) - 1/tau
-jac_arg = ((Omega0**2)/4) + 1.0j*(d_delta - (delta/tau))
+jac_arg = ((abs(Omega0**2))/4) + 1.0j*(d_delta - (delta/tau))
 
 r = ode(f).set_integrator('zvode')
 r.set_initial_value(1.0,0.0).set_f_params(f_arg,jac_arg)
