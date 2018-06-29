@@ -20,7 +20,7 @@ tau = 1000
 params = [omega_0, tau]
 
 t = np.arange(0,200,0.05)
-z = odeint(model,[1.0,0.0],t, args=(params,))
+z = odeint(model,[1.0,7.0],t, args=(params,))
 print(z)
 
 
