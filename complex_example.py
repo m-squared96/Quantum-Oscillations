@@ -51,12 +51,13 @@ while a <= 1.0:
     plt.plot(t_vals, v_vals, label="u'(t)")
     plt.xlabel("Time")
     plt.legend()
-    plt.title(r"$u(t) and u'(t): \Omega = \frac{%5.2f}{2 \pi}$" % (a))
+    plt.title(r"u(t) and u'(t):$ \Omega = \frac{%5.2f}{2 \pi}$" % (a))
 
-    #plt.figure()
-    #plt.plot(t_vals, usquare_vals)
-    #plt.xlabel("Time")
-    #plt.title("abs(u(t)**2) and abs(v(t)**2)")
+    plt.figure()
+    plt.plot(t_vals, usquare_vals)
+    plt.xlabel("Time")
+    plt.ylabel(r"$u^2(t)$: Population of excited state")
+    plt.title(r"$u^2(t)$: $\Omega = \frac{%5.2f}{2 \pi}$" % (a))
     a += 0.1
 
 plt.show()
