@@ -12,9 +12,12 @@ def f(t, y, arg1, arg2):
 delta = 0.5
 d_delta = 0.0
 tau = 1e9
-a = 0.0
+amin = float(input("Enter minimum a value:  "))
+amax = float(input("Enter max a value:  "))
 
-while a <= 1.0:
+a = amin
+
+while a <= amax:
 
     Omega0 = a/2*pi
 
