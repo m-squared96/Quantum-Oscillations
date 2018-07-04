@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import ode
 
 def u1(t, y, arg1, arg2):
-    return (arg1/2.0j)*arg2
+    return (arg1/2.0j)*arg2*y
 
 def u2(t, y, arg1, arg2):
     u, v = y
@@ -23,6 +23,23 @@ def main():
 
     t_vals, u2_vals, u2square_vals, v2_vals, v2square_vals = u2_solver(delta,d_delta,tau,Omega0)
 
+    u1_vals = []
+    u1square_vals = []
+    v1_vals = []
+    v1square_vals = []
+
+    iterator = 0
+
+    for i,j in zip(t_vals, u2_vals):
+        u1_result, u1square_result = u1_solver(i,j,Omega0,iterator)
+
+        u1_vals.append(u1_result)
+        u1square_vals.append(u1square_result)
+
+        iterator += 1
+
+    print("u1(t) calculated successfully")
+    
     plt.figure()
     plt.plot(t_vals, u2_vals, label=r"$u_2(t)$")
     plt.plot(t_vals, v2_vals, label=r"$u_2'(t)$")
@@ -36,10 +53,12 @@ def main():
     plt.ylabel(r"$u^{2}_{2}(t)$: Population of excited state")
     plt.title(r"$|u_{2}(t)|^2$: $\Omega = \frac{%5.2f}{2 \pi}$" % (a))
 
+    plt.figure()
+    plt.plot(t_vals, u1_vals)
+
     plt.show()
 
 def u2_solver(delta,d_delta,tau,Omega0):
-
 
     f_arg = complex(-1/tau, delta)
     jac_arg = complex(abs(Omega0**2)/4, d_delta - (delta/tau))
@@ -73,22 +92,18 @@ def u2_solver(delta,d_delta,tau,Omega0):
 
     return t_vals, u2_vals, u2square_vals, v2_vals, v2square_vals
 
-def u1_solver():
-    
-    u1_vals = []
-    u1square_vals = []
+def u1_solver(time,u2,Omega0,iterator):
+    q = ode(u1).set_integrator('zvode')
 
-    for t,u in zip(t_vals,u2_vals):
-        q = ode(u1).set_integrator('zvode')
-        q.set_initial_value(1.0,0.0).set_f_params(Omega0,u2_vals)
+    q.set_initial_value(time,0.0).set_f_params(Omega0,u2)
+    q.integrate(q.t+0.01)
 
-    while q.successful() and q.t < tl:
-        q.integrate(q.t+dt)
+    if q.successful():
 
-        u1_vals.append(q.y)
-        u1square_vals.append((abs(q.y))**2)
+        u1_result = q.y
+        u1square_result = (abs(q.y))**2 
+        return u1_result, u1square_result
 
-    print("u1(t) calculated successfully")
 
 if __name__ == "__main__":
     main()
