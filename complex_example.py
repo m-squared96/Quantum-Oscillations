@@ -1,62 +1,15 @@
 #!/usr/bin/python
 
-from numpy import pi
+from numpy import pi,sqrt,cos,sin
 import matplotlib.pyplot as plt
 from scipy.integrate import ode
 
-def u1(t, y, arg1, arg2):
-    return (arg1/2.0j)*arg2*y
+def u1squared(t, Omega_tilda, delta):
+    return (cos((Omega_tilda*t)/2))**2 + ((delta/Omega_tilda)*sin(Omega_tilda*t/2))**2
 
 def u2(t, y, arg1, arg2):
     u, v = y
     return [v, arg1*v - arg2*u]
-
-def main():
-    
-    #Parameters
-    delta = 0.5
-    d_delta = 0.0
-    tau = 1e9
-    a = float(input("Enter the numerator used for Omega0:  "))
-
-    Omega0 = a/2*pi
-
-    t_vals, u2_vals, u2square_vals, v2_vals, v2square_vals = u2_solver(delta,d_delta,tau,Omega0)
-
-    u1_vals = []
-    u1square_vals = []
-    v1_vals = []
-    v1square_vals = []
-
-    iterator = 0
-
-    for i,j in zip(t_vals, u2_vals):
-        u1_result, u1square_result = u1_solver(i,j,Omega0,iterator)
-
-        u1_vals.append(u1_result)
-        u1square_vals.append(u1square_result)
-
-        iterator += 1
-
-    print("u1(t) calculated successfully")
-    
-    plt.figure()
-    plt.plot(t_vals, u2_vals, label=r"$u_2(t)$")
-    plt.plot(t_vals, v2_vals, label=r"$u_2'(t)$")
-    plt.xlabel("Time")
-    plt.legend()
-    plt.title(r"$u_2(t)$ and $u_2'(t)$:$ \Omega = \frac{%5.2f}{2 \pi}$" % (a))
-
-    plt.figure()
-    plt.plot(t_vals, u2square_vals)
-    plt.xlabel("Time")
-    plt.ylabel(r"$u^{2}_{2}(t)$: Population of excited state")
-    plt.title(r"$|u_{2}(t)|^2$: $\Omega = \frac{%5.2f}{2 \pi}$" % (a))
-
-    plt.figure()
-    plt.plot(t_vals, u1_vals)
-
-    plt.show()
 
 def u2_solver(delta,d_delta,tau,Omega0):
 
@@ -70,7 +23,7 @@ def u2_solver(delta,d_delta,tau,Omega0):
     r.set_initial_value([0.0, 1.0],0.0).set_f_params(f_arg,jac_arg)
 
     tl = 20
-    dt = 0.01
+    dt = 0.001
 
     t_vals = []
     u2_vals = []
@@ -82,28 +35,59 @@ def u2_solver(delta,d_delta,tau,Omega0):
         r.integrate(r.t+dt)
         t_vals.append(r.t)
 
-        u2_vals.append(r.y[1])
-        u2square_vals.append((abs(r.y[1]))**2)
-        
-        v2_vals.append(r.y[0])
-        v2square_vals.append((abs(r.y[0]))**2)
+        u2_vals.append(r.y[0])
+        u2square_vals.append((abs(r.y[0]))**2)
 
-    print("u2(t) calculated successfully")
+        v2_vals.append(r.y[1])
+        v2square_vals.append((abs(r.y[1]))**2)
 
     return t_vals, u2_vals, u2square_vals, v2_vals, v2square_vals
 
-def u1_solver(time,u2,Omega0,iterator):
-    q = ode(u1).set_integrator('zvode')
+def u1_solver(time,Omega_tilda,delta):
 
-    q.set_initial_value(time,0.0).set_f_params(Omega0,u2)
-    q.integrate(q.t+0.01)
+    u1square_vals = []
 
-    if q.successful():
+    for t in time:
+        u1square_vals.append(u1squared(t,Omega_tilda,delta))
 
-        u1_result = q.y
-        u1square_result = (abs(q.y))**2 
-        return u1_result, u1square_result
+    return u1square_vals
 
 
-if __name__ == "__main__":
-    main()
+def main():
+
+    #Parameters
+    delta = 0.5
+    d_delta = 0.0
+    tau = 1e9
+    #a = float(input("Enter the numerator used for Omega0:  "))
+    a = 1.274
+
+    Omega0 = a/2*pi
+    Omega_tilda = sqrt(delta**2 + abs(Omega0**2))
+
+    t_vals, u2_vals, u2square_vals, v2_vals, v2square_vals = u2_solver(delta,d_delta,tau,Omega0)
+    u1square_vals = u1_solver(t_vals,Omega_tilda,delta)
+
+    diff = []
+    for i,j in zip(u1square_vals,u2square_vals):
+        diff.append(i+j)
+
+    # plt.figure()
+    # plt.plot(t_vals, u2_vals, label=r"$u_2(t)$")
+    # plt.plot(t_vals, v2_vals, label=r"$u_2'(t)$")
+    # plt.xlabel("Time")
+    # plt.legend()
+    # plt.title(r"$u_2(t)$ and $u_2'(t)$:$ \Omega_0 = \frac{%5.2f}{2 \pi}$" % (a))
+
+    plt.figure()
+    plt.plot(t_vals, u1square_vals, label=r"$|u_1(t)|^2$")
+    plt.plot(t_vals, u2square_vals, label=r"$|u_2(t)|^2$")
+    plt.plot(t_vals, diff, label=r"$|u_1(t)|^{2} + |u_2(t)|^{2}$", ls="--")
+    plt.xlabel("Time")
+    plt.ylabel("Population of states")
+    plt.legend()
+    plt.title(r"$|u_{2}(t)|^2$ and $|u_{1}(t)|^2$ : $\Omega_0 = \frac{%5.2f}{2 \pi}$" % (a))
+
+    plt.show()
+
+main()
