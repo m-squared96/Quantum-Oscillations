@@ -72,12 +72,12 @@ def main():
     for i,j in zip(u1square_vals,u2square_vals):
         diff.append(i+j)
 
-    # plt.figure()
-    # plt.plot(t_vals, u2_vals, label=r"$u_2(t)$")
-    # plt.plot(t_vals, v2_vals, label=r"$u_2'(t)$")
-    # plt.xlabel("Time")
-    # plt.legend()
-    # plt.title(r"$u_2(t)$ and $u_2'(t)$:$ \Omega_0 = \frac{%5.2f}{2 \pi}$" % (a))
+    plt.figure()
+    plt.plot(t_vals, u2_vals, label=r"$u_2(t)$")
+    plt.plot(t_vals, v2_vals, label=r"$u_2'(t)$")
+    plt.xlabel("Time")
+    plt.legend()
+    plt.title(r"$u_2(t)$ and $u_2'(t)$:$ \Omega_0 = \frac{%5.2f}{2 \pi}$" % (a))
 
     plt.figure()
     plt.plot(t_vals, u1square_vals, label=r"$|u_1(t)|^2$")
